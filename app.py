@@ -73,6 +73,7 @@ async def perform_ocr(file: UploadFile = File(...)):
 
     # Save image with bounding boxes and numbers
     output_path = "D:/Prajwal/OCR Sample Images/output_with_numbers.jpg"
+    
     cv2.imwrite(output_path, boxed_image)
 
     return {"text": extracted_text, "image_saved": output_path}
