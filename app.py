@@ -39,11 +39,15 @@ async def perform_ocr(file: UploadFile = File(...)):
     extracted_text = []
     boxes = []
     confidences = []
+    full_text = ""
+    line_items = []
     for idx, result in enumerate(results):
         for line in result:
             boxes.append(line[0])  # Bounding box coordinates
             extracted_text.append(line[1][0])  # Extract detected text
             confidences.append(line[1][1])
+            full_text += line[1][0] + " "
+            line_items.append({"text": line[1][0], "confidence": line[1][1]})
 
     # Convert image to PIL format for drawing
     image_pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
@@ -73,7 +77,10 @@ async def perform_ocr(file: UploadFile = File(...)):
 
     # Save image with bounding boxes and numbers
     output_path = "D:/Prajwal/OCR Sample Images/output_with_numbers.jpg"
-    
     cv2.imwrite(output_path, boxed_image)
 
-    return {"text": extracted_text, "image_saved": output_path}
+    return {
+        "full_text": full_text.strip(),
+        "line_items": line_items,
+        "image_saved": output_path
+    }
