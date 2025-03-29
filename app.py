@@ -84,3 +84,28 @@ async def perform_ocr(file: UploadFile = File(...)):
         "line_items": line_items,
         "image_saved": output_path
     }
+
+@app.post("/ocr/text")
+async def get_text(file: UploadFile = File(...)):
+    contents = await file.read()
+
+    # Convert image to numpy array
+    image = np.frombuffer(contents, np.uint8)
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+    # Perform OCR
+    results = ocr.ocr(image, cls=True)
+
+    extracted_text = []
+    line_items = []
+    full_text = ""
+    for result in results:
+        for line in result:
+            extracted_text.append(line[1][0])  # Extract detected text
+            full_text += line[1][0] + " "
+            line_items.append({"text": line[1][0], "confidence": line[1][1]})
+
+    return {
+        "full_text": full_text.strip(),
+        "line_items": line_items
+    }
