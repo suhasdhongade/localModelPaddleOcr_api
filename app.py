@@ -28,8 +28,8 @@ ocr = PaddleOCR(
 )
 
 # Path to a valid .ttf font file (Modify this based on your OS)
-FONT_PATH = "C:/Windows/Fonts/arial.ttf"  # For Windows
-# FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # For Linux/macOS
+#FONT_PATH = "C:/Windows/Fonts/arial.ttf"  # For Windows
+ FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # For Linux/macOS
 
  
 @app.post("/ocr/text",summary="Extract text from image and return full text and lines with confidence score")
