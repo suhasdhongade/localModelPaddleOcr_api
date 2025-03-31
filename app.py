@@ -6,6 +6,13 @@ import os
 import numpy as np
 import cv2
 import io
+import shutil
+import os
+from pdf2image import convert_from_path
+import fitz  # PyMuPDF
+import base64
+from io import BytesIO
+from PIL import Image
 
 app = FastAPI(
     title="OCR API with PaddleOCR",
@@ -290,3 +297,31 @@ async def extract_table(file: UploadFile = File(...)):
     return {
         "table": rows
     }
+
+
+@app.post("/convert_pdf_to_images/")
+async def convert_pdf_to_images(file: UploadFile = File(...)):
+    """Converts a PDF file into images and saves them to disk."""
+
+    # Directory to save images
+    OUTPUT_FOLDER = "saved_pages"
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+    # Read the uploaded PDF file as bytes
+    pdf_bytes = await file.read()
+
+    # Open PDF in memory
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+
+    saved_images = []
+    for i, page in enumerate(doc):
+        # Render page as an image
+        pix = page.get_pixmap()
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+
+        # Save image to disk
+        img_path = os.path.join(OUTPUT_FOLDER, f"page_{i+1}.png")
+        img.save(img_path, "PNG")
+        saved_images.append(img_path)
+
+    return {"saved_images": saved_images}
