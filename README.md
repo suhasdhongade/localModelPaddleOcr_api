@@ -30,6 +30,12 @@ This project provides a FastAPI-based OCR (Optical Character Recognition) API ut
    - **Description**: Extracts tables from an image and returns structured data.
    - **Input**: Image file.
    - **Output**: JSON containing extracted table data.
+     
+4. **`/ocr/convert_pdf_to_images`**
+   - **Method**: `POST`
+   - **Description**: Converts a PDF file into a set of images for OCR processing.
+   - **Input**: PDF file.
+   - **Output**: JSON object containing a list of image file paths converted from the PDF.
 
 ## Installation
 
