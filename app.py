@@ -320,3 +320,19 @@ async def convert_pdf_to_images(file: UploadFile = File(...)):
         saved_images.append(img_path)
 
     return {"saved_images": saved_images}
+
+
+@app.post("/extract_text_from_pdf/")
+async def extract_text_from_pdf(file: UploadFile = File(...)):
+    """Extracts text from a PDF file and returns it page-wise in JSON format."""
+
+    # Read the uploaded PDF file as bytes
+    pdf_bytes = await file.read()
+
+    # Open PDF in memory
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+
+    # Extract text page-wise
+    text_data = {f"page_{i+1}": page.get_text("text") for i, page in enumerate(doc)}
+
+    return {"extracted_text": text_data}
