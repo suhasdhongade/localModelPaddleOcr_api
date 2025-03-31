@@ -6,3 +6,7 @@ opencv-python-headless
 numpy
 pillow
 python-multipart
+pdf2image
+fitz
+PIL
+cv2

@@ -1,18 +1,13 @@
 from fastapi import FastAPI, UploadFile, File, Response
 from paddleocr import PaddleOCR, draw_ocr
 from PIL import Image, ImageDraw, ImageFont
-import shutil
 import os
 import numpy as np
 import cv2
-import io
-import shutil
 import os
 from pdf2image import convert_from_path
 import fitz  # PyMuPDF
-import base64
-from io import BytesIO
-from PIL import Image
+
 
 app = FastAPI(
     title="OCR API with PaddleOCR",
