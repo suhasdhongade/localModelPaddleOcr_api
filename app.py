@@ -234,3 +234,59 @@ async def perform_ocr(file: UploadFile = File(...)):
         "line_items": line_items,
         "image_saved": output_path
     }
+
+
+@app.post("/ocr/ExtractTableFromImage", summary="Extract tables from an image")
+async def extract_table(file: UploadFile = File(...)):
+    """
+    This endpoint takes an image file as input, performs OCR to extract tables,
+    and returns the extracted table data in a structured format.
+    
+    - **file**: Upload an image file.
+    - **Returns**: Extracted table data as a list of rows and columns.
+    """
+    contents = await file.read()
+
+    # Convert image to numpy array
+    try:
+        image = np.frombuffer(contents, np.uint8)
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid image file")
+
+    # Perform OCR
+    results = ocr.ocr(image, cls=True)
+
+    # Extract bounding boxes and text
+    table_data = []
+    for result in results:
+        for line in result:
+            box = line[0]  # Bounding box coordinates
+            text = line[1][0]  # Detected text
+            confidence = line[1][1]  # Confidence score
+            table_data.append({"box": box, "text": text, "confidence": confidence})
+
+    # Sort the data by the vertical position of the bounding boxes (top to bottom)
+    table_data.sort(key=lambda x: (x["box"][0][1], x["box"][0][0]))
+
+    # Group text into rows based on proximity of bounding boxes
+    rows = []
+    current_row = []
+    row_threshold = 10  # Adjust this threshold based on your table layout
+    last_y = None
+
+    for item in table_data:
+        y = item["box"][0][1]  # Top-left corner's y-coordinate
+        if last_y is None or abs(y - last_y) < row_threshold:
+            current_row.append(item["text"])
+        else:
+            rows.append(current_row)
+            current_row = [item["text"]]
+        last_y = y
+
+    if current_row:
+        rows.append(current_row)
+
+    return {
+        "table": rows
+    }
